@@ -8,10 +8,8 @@ import (
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/unrolled/secure"
 
-	"ipam/models"
-
-	"github.com/gobuffalo/buffalo-pop/v2/pop/popmw"
 	contenttype "github.com/gobuffalo/mw-contenttype"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/x/sessions"
 	"github.com/rs/cors"
 )
@@ -58,9 +56,19 @@ func App() *buffalo.App {
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.Connection)
 		// Remove to disable this.
-		app.Use(popmw.Transaction(models.DB))
+		//TEMPORARILY DISABLING THIS TO FIX THE FOLLOWING ERROR
+		/*
+			{"error":"couldn't start a new transaction: could not create new transaction: failed to connect to `host=127.0.0.1 user=postgres database=ipam_development`: dial error (dial tcp 127.0.0.1:5432: connect: connection refused)","trace":"couldn't start a new transaction: could not create new transaction: failed to connect to `host=127.0.0.1 user=postgres database=ipam_development`:
+			dial error (dial tcp 127.0.0.1:5432: connect: connection refused)","code":500}
+		*/
+		//app.Use(popmw.Transaction(models.DB))
 
 		app.GET("/", HomeHandler)
+
+		apiGroup := app.Group("/api")
+
+		apiV1Group := apiGroup.Group("/v1")
+		apiV1Group.GET("/subnets/{buName}", apiV1SubnetHandler)
 	}
 
 	return app
